@@ -34,12 +34,30 @@ class TestStackNode(unittest.TestCase):
 
 class TestStack(unittest.TestCase):
 
-    def test_is_empty(self):
+    def test(self):
         stack = Stack[str]()
         self.assertTrue(stack.is_empty())
 
         stack.push(3)
         self.assertFalse(stack.is_empty())
+
+        self.assertEqual(stack.top(), 3)
+
+        stack.push(4)
+
+        self.assertEqual(stack.top(), 4)
+
+        stack.pop()
+
+        self.assertEqual(stack.top(), 3)
+
+        stack.pop()
+
+        self.assertEqual(stack.top(), None)
+
+        stack.pop()
+
+        self.assertEqual(stack.top(), None)
 
 
 if __name__ == '__main__':

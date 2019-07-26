@@ -1,7 +1,6 @@
 from typing import TypeVar, Generic, Optional
 
 ContentType = TypeVar('ContentType')
-T = TypeVar('T')
 
 
 class Stack(Generic[ContentType]):
@@ -13,9 +12,9 @@ class Stack(Generic[ContentType]):
     Objekte.
     """
 
-    class StackNode(Generic[T]):
+    class StackNode():
 
-        def __init__(self, p_content: T):
+        def __init__(self, p_content):
             """
             Ein neues Objekt vom Typ StackNode wird erschaffen.
             Der Inhalt wird per Parameter gesetzt. Der Verweis ist leer.
@@ -43,7 +42,7 @@ class Stack(Generic[ContentType]):
             self.__next_node = p_next
 
         @property
-        def content(self) -> T:
+        def content(self):
             """
             :returns: das Inhaltsobjekt vom Typ ContentType
             :rtype: ContentType
@@ -67,7 +66,7 @@ class Stack(Generic[ContentType]):
         """
         return self.__head is None
 
-    def push(self, p_content: ContentType):
+    def push(self, p_content):
         """
         Das Objekt p_content wird oben auf den Stapel gelegt. Falls
         p_content gleich null ist, bleibt der Stapel unverändert.
