@@ -16,9 +16,9 @@ Python Implementationen der Java-Klassen für das Zentralabitur in NRW ab 2018
 
 ### Baum
 
-- [ ] BinarySearchTree
+- [x] BinarySearchTree
 - [x] BinaryTree
-- [ ] ComparableContent
+- [x] ComparableContent
 
 ### Graph
 
