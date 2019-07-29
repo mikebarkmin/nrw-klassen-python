@@ -22,9 +22,9 @@ Python Implementationen der Java-Klassen für das Zentralabitur in NRW ab 2018
 
 ### Graph
 
-- [ ] Edge
-- [ ] Graph
-- [ ] Vertex
+- [x] Edge
+- [x] Graph
+- [x] Vertex
 
 ## Datenbanklassen
 
