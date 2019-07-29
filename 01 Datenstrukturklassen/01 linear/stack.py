@@ -21,19 +21,17 @@ class Stack(Generic[ContentType]):
 
             :param p_content: der Inhalt des Knotens
             """
-            self.__content: T = p_content
+            self.__content = p_content
             self.__next_node: Optional['Stack.StackNode'] = None
 
-        @property
-        def next(self) -> 'Optional[Stack.StackNode]':
+        def get_next(self) -> 'Optional[Stack.StackNode]':
             """
             :returns: das Objekt, auf das der aktuelle Verweis zeigt
             :rtype: Stack.StackNode
             """
             return self.__next_node
 
-        @next.setter
-        def next(self, p_next: 'Stack.StackNode'):
+        def set_next(self, p_next: 'Stack.StackNode'):
             """
             Der Verweis wird auf das Objekt, das als Parameter übergeben wird, gesetzt.
 
@@ -41,8 +39,7 @@ class Stack(Generic[ContentType]):
             """
             self.__next_node = p_next
 
-        @property
-        def content(self):
+        def get_content(self):
             """
             :returns: das Inhaltsobjekt vom Typ ContentType
             :rtype: ContentType
@@ -75,7 +72,7 @@ class Stack(Generic[ContentType]):
         """
         if (p_content is not None):
             node = Stack.StackNode(p_content)
-            node.next = self.__head
+            node.set_next(self.__head)
             self.__head = node
 
     def pop(self):
@@ -84,7 +81,7 @@ class Stack(Generic[ContentType]):
         Stapel leer ist, bleibt er unverändert.
         """
         if not self.is_empty():
-            self.__head = self.__head.next
+            self.__head = self.__head.get_next()
 
     def top(self) -> Optional[ContentType]:
         """
@@ -95,5 +92,5 @@ class Stack(Generic[ContentType]):
         :rtype: ContentType
         """
         if not self.is_empty():
-            return self.__head.content
+            return self.__head.get_content()
         return None

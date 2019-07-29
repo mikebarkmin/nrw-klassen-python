@@ -17,19 +17,19 @@ class TestQueueNode(unittest.TestCase):
         queue_node = queue.QueueNode(1)
         next_queue_node = queue.QueueNode(2)
 
-        self.assertEqual(queue_node.next, None)
+        self.assertEqual(queue_node.get_next(), None)
 
-        queue_node.next = next_queue_node
+        queue_node.set_next(next_queue_node)
 
-        self.assertEqual(queue_node.next, next_queue_node)
-        self.assertEqual(next_queue_node.next, None)
+        self.assertEqual(queue_node.get_next(), next_queue_node)
+        self.assertEqual(next_queue_node.get_next(), None)
 
     def test_content(self):
         queue = Queue()
 
         queue_node = queue.QueueNode(1)
 
-        self.assertEqual(queue_node.content, 1)
+        self.assertEqual(queue_node.get_content(), 1)
 
 
 class TestQueue(unittest.TestCase):

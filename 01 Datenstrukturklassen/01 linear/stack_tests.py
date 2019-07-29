@@ -17,19 +17,19 @@ class TestStackNode(unittest.TestCase):
         stack_node = stack.StackNode(1)
         next_stack_node = stack.StackNode(2)
 
-        self.assertEqual(stack_node.next, None)
+        self.assertEqual(stack_node.get_next(), None)
 
-        stack_node.next = next_stack_node
+        stack_node.set_next(next_stack_node)
 
-        self.assertEqual(stack_node.next, next_stack_node)
-        self.assertEqual(next_stack_node.next, None)
+        self.assertEqual(stack_node.get_next(), next_stack_node)
+        self.assertEqual(next_stack_node.get_next(), None)
 
     def test_content(self):
         stack = Stack()
 
         stack_node = stack.StackNode(1)
 
-        self.assertEqual(stack_node.content, 1)
+        self.assertEqual(stack_node.get_content(), 1)
 
 
 class TestStack(unittest.TestCase):

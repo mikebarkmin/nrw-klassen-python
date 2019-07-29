@@ -17,19 +17,19 @@ class TestListNode(unittest.TestCase):
         list_node = list.ListNode(1)
         next_list_node = list.ListNode(2)
 
-        self.assertEqual(list_node.next, None)
+        self.assertEqual(list_node.get_next_node(), None)
 
-        list_node.next = next_list_node
+        list_node.set_next_node(next_list_node)
 
-        self.assertEqual(list_node.next, next_list_node)
-        self.assertEqual(next_list_node.next, None)
+        self.assertEqual(list_node.get_next_node(), next_list_node)
+        self.assertEqual(next_list_node.get_next_node(), None)
 
     def test_content(self):
         list = List()
 
         list_node = list.ListNode(1)
 
-        self.assertEqual(list_node.content, 1)
+        self.assertEqual(list_node.get_content(), 1)
 
 
 class Testlist(unittest.TestCase):

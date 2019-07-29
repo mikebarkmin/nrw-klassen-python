@@ -23,8 +23,7 @@ class Queue(Generic[ContentType]):
             self.__content = p_content
             self.__next_node = None
 
-        @property
-        def next(self) -> Optional['Queue.QueueNode']:
+        def get_next(self) -> Optional['Queue.QueueNode']:
             """
             Liefert das nächste Element des aktuellen Knotens.
 
@@ -33,8 +32,7 @@ class Queue(Generic[ContentType]):
             """
             return self.__next_node
 
-        @next.setter
-        def next(self, p_next: 'Queue.QueueNode'):
+        def set_next(self, p_next: 'Queue.QueueNode'):
             """
             Der Verweis wird auf das Objekt, das als Parameter übergeben wird,
             gesetzt
@@ -43,8 +41,7 @@ class Queue(Generic[ContentType]):
             """
             self.__next_node = p_next
 
-        @property
-        def content(self):
+        def get_content(self):
             """
             Liefert das Inhaltsobjekt des Knotens vom Type ContentType.
 
@@ -85,7 +82,7 @@ class Queue(Generic[ContentType]):
                 self.__head = new_node
                 self.__tail = new_node
             else:
-                self.__tail.next = new_node
+                self.__tail.set_next(new_node)
                 self.__tail = new_node
 
     def dequeue(self):
@@ -94,7 +91,7 @@ class Queue(Generic[ContentType]):
         Falls die Schlange leer ist, wird sie nicht verändert.
         """
         if not self.is_empty():
-            self.__head = self.__head.next
+            self.__head = self.__head.get_next()
             if self.is_empty():
                 self.__head = None
                 self.__tail = None
@@ -111,4 +108,4 @@ class Queue(Generic[ContentType]):
         if self.is_empty():
             return None
         else:
-            return self.__head.content
+            return self.__head.get_content()
