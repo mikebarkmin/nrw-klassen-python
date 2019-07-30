@@ -30,7 +30,7 @@ Python Implementationen der Java-Klassen für das Zentralabitur in NRW ab 2018
 
 - [x] MySQL
 - [x] SQLite
-- [ ] MSAccess
+- [ ] MSAccess (wird nicht unterstützt)
 
 ## Netzklassen
 
