@@ -19,6 +19,7 @@ class Server(ABC):
                     socket.AF_INET, socket.SOCK_STREAM)
                 self.__server_socket.bind(("localhost", p_port))
                 self.__server_socket.listen(10)
+                self.__server_socket.setblocking(False)
                 self._active = True
                 self.start()
             except Exception:
@@ -71,7 +72,7 @@ class Server(ABC):
                     return None
 
             def send(self, p_message: str):
-                self.__client_socket.send(p_message.encode("utf-8"))
+                self.__client_socket.sendall(p_message.encode("utf-8"))
 
             def get_client_ip(self) -> str:
                 if self.__client_socket is not None:

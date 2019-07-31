@@ -31,15 +31,16 @@ class Connection():
                     break
             return line
         except Exception:
-            pass
-
-        return None
+            return None
 
     def send(self, p_message: str):
         if self.__socket is None:
             return
 
-        self.__socket.send(p_message.encode("utf-8"))
+        try:
+            self.__socket.send(p_message.encode("utf-8"))
+        except Exception:
+            pass
 
     def close(self):
         if self.__socket is not None:

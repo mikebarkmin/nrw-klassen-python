@@ -30,6 +30,7 @@ class Client(ABC):
                     self._socket = socket.socket(
                         socket.AF_INET, socket.SOCK_STREAM)
                     self._socket.connect((p_server_ip, p_server_port))
+                    self._socket.setblocking(False)
                 except Exception:
                     pass
 
@@ -48,7 +49,6 @@ class Client(ABC):
                         line += text
                     elif text == "\n":
                         break
-
                 return line
 
             def send(self, p_message: str):
@@ -56,7 +56,7 @@ class Client(ABC):
                     return
 
                 try:
-                    self._socket.send(p_message.encode("utf-8"))
+                    self._socket.sendall(p_message.encode("utf-8"))
                 except Exception:
                     pass
 
@@ -76,8 +76,7 @@ class Client(ABC):
 
             if self.__socket_wrapper._socket is not None:
                 self._active = True
-
-            self.start()
+                self.start()
 
         def run(self):
             message = None
@@ -86,6 +85,8 @@ class Client(ABC):
                 message = self.__socket_wrapper.receive()
                 if message is not None:
                     self.__outer.process_message(message)
+                else:
+                    self.close()
 
         def send(self, p_message: str):
             if self._active:
