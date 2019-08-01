@@ -2,6 +2,8 @@ import asyncio
 
 
 async def handle_echo(reader, writer):
+    writer.write("Sent data")
+
     data = await reader.readline()
     message = data.decode()
     addr = writer.get_extra_info('peername')

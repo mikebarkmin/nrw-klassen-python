@@ -34,7 +34,7 @@ Python Implementationen der Java-Klassen für das Zentralabitur in NRW ab 2018
 
 ## Netzklassen
 
-- [ ] Client
-- [ ] Connection
-- [ ] Server
+- [x] Client
+- [x] Connection
+- [x] Server
  

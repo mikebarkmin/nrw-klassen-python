@@ -27,6 +27,13 @@ class TestConnection(unittest.TestCase):
         r = self.connection.receive()
         self.assertEqual(r + "\n", s)
 
+    def test_umlate(self):
+        s = "üäöß\n"
+        self.connection.send(s)
+        sleep(2)
+        r = self.connection.receive()
+        self.assertEqual(r + "\n", s)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -17,18 +17,21 @@ class Server(ABC):
             try:
                 self.__server_socket = socket.socket(
                     socket.AF_INET, socket.SOCK_STREAM)
+                self.__server_socket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 self.__server_socket.bind(("localhost", p_port))
                 self.__server_socket.listen(10)
                 self.__server_socket.setblocking(False)
                 self._active = True
                 self.start()
-            except Exception:
+            except Exception as e:
                 pass
 
         def run(self):
             while self._active:
                 try:
                     client_socket, _ = self.__server_socket.accept()
+                    client_socket.setblocking(False)
                     self.__outer.add_new_client_message_handler(client_socket)
                     self.__outer.process_new_connection(
                         client_socket.getsockname()[0],
@@ -55,24 +58,29 @@ class Server(ABC):
                 self.__client_port = p_socket.getsockname()[1]
 
             def receive(self) -> Optional[str]:
-                try:
-                    line = ""
-                    while True:
+                if self.__client_socket is None:
+                    return None
+
+                line = b''
+                while True:
+                    try:
                         part = self.__client_socket.recv(1)
                         if not part:
                             break
 
-                        text = part.decode("utf-8")
-                        if text != "\n":
-                            line += text
-                        elif text == "\n":
+                        if part != b'\n':
+                            line += part
+                        elif part == b'\n':
                             break
-                    return line
-                except Exception:
-                    return None
+                    except BlockingIOError:
+                        continue
+                    except Exception:
+                        return None
+                return line.decode('utf-8')
 
             def send(self, p_message: str):
-                self.__client_socket.sendall(p_message.encode("utf-8"))
+                self.__client_socket.sendall(
+                    p_message.encode("utf-8"))
 
             def get_client_ip(self) -> str:
                 if self.__client_socket is not None:

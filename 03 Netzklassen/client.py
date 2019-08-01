@@ -21,7 +21,7 @@ class Client(ABC):
 
     class MessageHandler(Thread):
 
-        class SockerWrapper():
+        class SocketWrapper():
 
             def __init__(self, p_server_ip: str, p_server_port: int):
                 self._socket: Optional[socket.socket] = None
@@ -29,8 +29,8 @@ class Client(ABC):
                 try:
                     self._socket = socket.socket(
                         socket.AF_INET, socket.SOCK_STREAM)
-                    self._socket.connect((p_server_ip, p_server_port))
                     self._socket.setblocking(False)
+                    self._socket.connect_ex((p_server_ip, p_server_port))
                 except Exception:
                     pass
 
@@ -38,18 +38,22 @@ class Client(ABC):
                 if self._socket is None:
                     return None
 
-                line = ""
+                line = b''
                 while True:
-                    part = self._socket.recv(1)
-                    if not part:
-                        break
+                    try:
+                        part = self._socket.recv(1)
+                        if not part:
+                            break
 
-                    text = part.decode("utf-8")
-                    if text != "\n":
-                        line += text
-                    elif text == "\n":
-                        break
-                return line
+                        if part != b'\n':
+                            line += part
+                        elif part == b'\n':
+                            break
+                    except BlockingIOError:
+                        continue
+                    except Exception:
+                        return None
+                return line.decode('utf-8')
 
             def send(self, p_message: str):
                 if self._socket is None:
@@ -69,7 +73,7 @@ class Client(ABC):
 
         def __init__(self, p_server_ip: str, p_server_port: int, outer: 'Client'):
             super().__init__()
-            self.__socket_wrapper = Client.MessageHandler.SockerWrapper(
+            self.__socket_wrapper = Client.MessageHandler.SocketWrapper(
                 p_server_ip, p_server_port)
             self.__outer = outer
             self._active = False
