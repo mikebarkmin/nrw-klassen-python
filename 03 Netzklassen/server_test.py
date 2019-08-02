@@ -13,7 +13,9 @@ class MyServer(Server):
         self.send(p_client_ip, p_client_port, "Hi\n")
 
     def process_message(self, p_client_ip, p_client_port, p_message):
+        print(p_message)
         MyServer.messages.append(p_message)
+        self.send(p_client_ip, p_client_port, p_message)
 
     def process_closing_connection(self, p_client_ip, p_client_port):
         self.send(p_client_ip, p_client_port, "Tschüss\n")
@@ -42,11 +44,19 @@ class TestServer(unittest.TestCase):
         self.assertTrue(self.client.is_connected())
         self.assertEqual(MyClient.messages[0], "Hi")
         self.assertTrue(self.client.is_connected())
+        self.client.send("Hi\n")
+        self.client.send("Hallo Again\n")
 
         sleep(2)
+        self.assertEqual(MyServer.messages[0], "Hi")
+        self.assertEqual(MyServer.messages[1], "Hallo Again")
+        # server echos
+        sleep(2)
+        self.assertEqual(MyClient.messages[1], "Hi")
+        self.assertEqual(MyClient.messages[2], "Hallo Again")
         self.server.close()
         sleep(2)
-        self.assertEqual(MyClient.messages[1], "Tschüss")
+        self.assertEqual(MyClient.messages[3], "Tschüss")
         self.client.close()
 
 

@@ -28,7 +28,7 @@ class TestConnection(unittest.TestCase):
         self.assertEqual(r + "\n", s)
 
     def test_umlate(self):
-        s = "üäöß\n"
+        s = "üäö\n"
         self.connection.send(s)
         sleep(2)
         r = self.connection.receive()

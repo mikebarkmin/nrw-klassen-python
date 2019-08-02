@@ -1,4 +1,6 @@
 import socket
+import errno
+from queue import Queue, Empty
 from typing import Optional
 from abc import ABC, abstractmethod
 from threading import Thread
@@ -19,100 +21,78 @@ class Client(ABC):
     unterbrochene oder getrennte Verbindung kann nicht reaktiviert werden.
     """
 
-    class MessageHandler(Thread):
+    def __init__(self, p_ip: str, p_port: int):
+        super().__init__()
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket.connect((p_ip, p_port))
+        self.__socket.setblocking(False)
+        self.__send_buffer: Queue[bytes] = Queue()
+        self.__receive_buffer: Queue[bytes] = Queue()
+        self.__message_buffer = b''
+        self.__active = True
 
-        class SocketWrapper():
+        t = Thread(target=self.__run)
+        t.start()
 
-            def __init__(self, p_server_ip: str, p_server_port: int):
-                self._socket: Optional[socket.socket] = None
+    def __receive_to_buffer(self):
+        try:
+            message_part = self.__socket.recv(1)
+            if message_part == b'\n':
+                self.__receive_buffer.put(self.__message_buffer)
+                self.__message_buffer = b''
+            else:
+                self.__message_buffer += message_part
+        except Exception:
+            pass
+
+    def __send_from_buffer(self):
+        try:
+            message = self.__send_buffer.get(block=False)
+            if message is not None:
+                try:
+                    print(f"Send {message}")
+                    self.__socket.sendall(message)
+                except Exception:
+                    self.__send_buffer.put(message)
+        except Empty:
+            pass
+
+    def __run(self):
+        while self.__active:
+            try:
+                # sending
+                self.__send_from_buffer()
+
+                # receiving
+                self.__receive_to_buffer()
 
                 try:
-                    self._socket = socket.socket(
-                        socket.AF_INET, socket.SOCK_STREAM)
-                    self._socket.setblocking(False)
-                    self._socket.connect_ex((p_server_ip, p_server_port))
-                except Exception:
+                    message = self.__receive_buffer.get(block=False)
+                    if not message:
+                        self.close()
+                        print("connection closed by the server")
+
+                    print(f"Received {message}")
+                    self.process_message(message.decode("utf-8"))
+                except Empty:
                     pass
-
-            def receive(self) -> Optional[str]:
-                if self._socket is None:
-                    return None
-
-                line = b''
-                while True:
-                    try:
-                        part = self._socket.recv(1)
-                        if not part:
-                            break
-
-                        if part != b'\n':
-                            line += part
-                        elif part == b'\n':
-                            break
-                    except BlockingIOError:
-                        continue
-                    except Exception:
-                        return None
-                return line.decode('utf-8')
-
-            def send(self, p_message: str):
-                if self._socket is None:
-                    return
-
-                try:
-                    self._socket.sendall(p_message.encode("utf-8"))
-                except Exception:
-                    pass
-
-            def close(self):
-                if self._socket is not None:
-                    try:
-                        self._socket.close()
-                    except Exception:
-                        pass
-
-        def __init__(self, p_server_ip: str, p_server_port: int, outer: 'Client'):
-            super().__init__()
-            self.__socket_wrapper = Client.MessageHandler.SocketWrapper(
-                p_server_ip, p_server_port)
-            self.__outer = outer
-            self._active = False
-
-            if self.__socket_wrapper._socket is not None:
-                self._active = True
-                self.start()
-
-        def run(self):
-            message = None
-
-            while self._active:
-                message = self.__socket_wrapper.receive()
-                if message is not None:
-                    self.__outer.process_message(message)
-                else:
-                    self.close()
-
-        def send(self, p_message: str):
-            if self._active:
-                self.__socket_wrapper.send(p_message)
-
-        def close(self):
-            if self._active:
-                self._active = False
-                self.__socket_wrapper.close()
-
-    def __init__(self, p_server_ip: str, p_server_port: int):
-        self.__message_handler = Client.MessageHandler(
-            p_server_ip, p_server_port, self)
-
-    def is_connected(self) -> bool:
-        return self.__message_handler._active
-
-    def send(self, p_message: str):
-        self.__message_handler.send(p_message)
+            except IOError as e:
+                if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                    self.__active = False
+                    print('Error {e}')
 
     def close(self):
-        self.__message_handler.close()
+        try:
+            self.__active = False
+            self.__socket.close()
+        except Exception:
+            self.__active = False
+
+    def is_connected(self) -> bool:
+        return self.__active
+
+    def send(self, p_message: str):
+        self.__send_buffer.put(p_message.encode("utf-8"))
 
     @abstractmethod
     def process_message(self, p_message: str):
